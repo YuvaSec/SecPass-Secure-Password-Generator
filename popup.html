@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SecPass</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="panel" aria-live="polite">
+      <header class="hero">
+        <div class="badge" aria-hidden="true">SP</div>
+        <div>
+          <h1>SecPass</h1>
+          <p>Secure passwords, instantly.</p>
+        </div>
+      </header>
+
+      <section class="card output">
+        <label for="result">Generated password</label>
+        <div class="output-row">
+          <input id="result" type="text" readonly aria-readonly="true" />
+          <button id="copy" class="btn ghost copy-btn" type="button">
+            <span class="copy-text">Copy</span>
+          </button>
+        </div>
+        <div class="strength">
+          <div class="strength-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <span></span>
+          </div>
+          <span id="strengthLabel">Strength</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <label class="field" for="length">
+          <span>Password length</span>
+          <output id="lengthValue" for="length">16</output>
+        </label>
+        <input id="length" type="range" min="8" max="24" step="1" />
+
+        <div class="toggles">
+          <label class="toggle"><input id="lower" type="checkbox" />Lowercase</label>
+          <label class="toggle"><input id="upper" type="checkbox" />Uppercase</label>
+          <label class="toggle"><input id="nums" type="checkbox" />Numbers</label>
+          <label class="toggle"><input id="syms" type="checkbox" />Symbols</label>
+          <label class="toggle subtle"><input id="noSimilar" type="checkbox" />Exclude similar (I l 1 O 0)</label>
+        </div>
+      </section>
+
+      <section class="actions">
+        <button id="generate" class="btn generate-btn" type="button">Generate</button>
+        <button id="shuffle" class="btn ghost" type="button">Shuffle</button>
+      </section>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
