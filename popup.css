@@ -217,8 +217,8 @@ input[type="range"] {
 #result {
   flex: 1;
   padding: 10px 12px;
-  border: 1px solid var(--border);
   border-style: dashed;
+  border: 2px var(--border);
   border-radius: 12px;
   background: #fff;
   font-size: 1.2rem;
@@ -241,7 +241,7 @@ input[type="range"] {
 .result-display {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--border);
+  border: 1px var(--border);
   border-style: dashed;
   border-radius: 12px;
   background: #fff;
