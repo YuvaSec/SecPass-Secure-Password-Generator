@@ -17,12 +17,10 @@
       </header>
 
       <section class="card output">
-        <label for="result">Generated password</label>
+<!--        <label for="result">Generated password</label>-->
         <div class="output-row">
-          <input id="result" type="text" readonly aria-readonly="true" />
-          <button id="copy" class="btn ghost copy-btn" type="button">
-            <span class="copy-text">Copy</span>
-          </button>
+          <input id="result" class="sr-only" type="text" readonly aria-readonly="true" />
+          <div id="resultDisplay" class="result-display" aria-label="Generated password"></div>
         </div>
         <div class="strength">
           <div class="strength-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
@@ -45,12 +43,15 @@
           <label class="toggle"><input id="nums" type="checkbox" />Numbers</label>
           <label class="toggle"><input id="syms" type="checkbox" />Symbols</label>
           <label class="toggle subtle"><input id="noSimilar" type="checkbox" />Exclude similar (I l 1 O 0)</label>
+          <label class="toggle wide"><input id="sanskrit" type="checkbox" />Sanskrit (अ)</label>
         </div>
       </section>
 
       <section class="actions">
         <button id="generate" class="btn generate-btn" type="button">Generate</button>
-        <button id="shuffle" class="btn ghost" type="button">Shuffle</button>
+        <button id="copy" class="btn ghost copy-btn" type="button">
+          <span class="copy-text">Copy</span>
+        </button>
       </section>
 
       <div id="toast" class="toast" role="status" aria-live="polite"></div>

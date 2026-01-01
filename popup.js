@@ -4,6 +4,7 @@ const defaults = {
   upper: true,
   nums: true,
   syms: true,
+  sanskrit: false,
   noSimilar: false,
 };
 
@@ -14,12 +15,13 @@ const elements = {
   upper: document.getElementById("upper"),
   nums: document.getElementById("nums"),
   syms: document.getElementById("syms"),
+  sanskrit: document.getElementById("sanskrit"),
   noSimilar: document.getElementById("noSimilar"),
   result: document.getElementById("result"),
+  resultDisplay: document.getElementById("resultDisplay"),
   copy: document.getElementById("copy"),
   generate: document.getElementById("generate"),
   regenerate: document.getElementById("regenerate"),
-  shuffle: document.getElementById("shuffle"),
   strengthBar: document.querySelector(".strength-bar span"),
   strengthWrap: document.querySelector(".strength-bar"),
   strengthLabel: document.getElementById("strengthLabel"),
@@ -32,10 +34,14 @@ const sets = {
   upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
   nums: "0123456789",
   syms: "!@#$%^&*()-_=+[]{};:,.<>/?~",
+  sanskrit: "अआइईउऊएऐओऔकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसह",
 };
 
 let toastTimeout;
 let copyTimeout;
+let scrambleTimer;
+let lastStandardToggles = null;
+let currentPassword = "";
 
 function secureRandomInt(max) {
   if (max <= 0) {
@@ -72,11 +78,21 @@ function filteredSet(value, excludeSimilar) {
 }
 
 function buildPool(options) {
+  if (options.sanskrit) {
+    const latinLower = filteredSet(sets.lower, options.noSimilar);
+    const latinUpper = filteredSet(sets.upper, options.noSimilar);
+    const latinNums = filteredSet(sets.nums, options.noSimilar);
+    const activeSets = [sets.sanskrit, latinLower, latinUpper, latinNums].filter(Boolean);
+    const pool = activeSets.join("");
+    return { pool, activeSets };
+  }
+
   const activeSets = [];
   if (options.lower) activeSets.push(filteredSet(sets.lower, options.noSimilar));
   if (options.upper) activeSets.push(filteredSet(sets.upper, options.noSimilar));
   if (options.nums) activeSets.push(filteredSet(sets.nums, options.noSimilar));
   if (options.syms) activeSets.push(filteredSet(sets.syms, options.noSimilar));
+  if (options.sanskrit) activeSets.push(sets.sanskrit);
 
   const pool = activeSets.join("");
   return { pool, activeSets };
@@ -118,6 +134,7 @@ function readOptionsFromUI() {
     upper: elements.upper.checked,
     nums: elements.nums.checked,
     syms: elements.syms.checked,
+    sanskrit: elements.sanskrit.checked,
     noSimilar: elements.noSimilar.checked,
   };
 }
@@ -129,11 +146,21 @@ function writeOptionsToUI(options) {
   elements.upper.checked = options.upper;
   elements.nums.checked = options.nums;
   elements.syms.checked = options.syms;
+  elements.sanskrit.checked = options.sanskrit;
   elements.noSimilar.checked = options.noSimilar;
+  syncSanskritModeUI(options.sanskrit);
 }
 
 function saveOptions(options) {
   chrome.storage.sync.set(options);
+}
+
+function syncSanskritModeUI(enabled) {
+  const shouldDisable = Boolean(enabled);
+  elements.lower.disabled = shouldDisable;
+  elements.upper.disabled = shouldDisable;
+  elements.nums.disabled = shouldDisable;
+  elements.syms.disabled = shouldDisable;
 }
 
 function generatePassword(options) {
@@ -141,12 +168,16 @@ function generatePassword(options) {
   if (!activeSets.length) {
     showToast("Select at least one character set", "error");
     elements.result.value = "";
+    renderResult("");
+    currentPassword = "";
     updateStrength(0, 0);
     return;
   }
   if (!pool.length) {
     showToast("No characters available after filtering", "error");
     elements.result.value = "";
+    renderResult("");
+    currentPassword = "";
     updateStrength(0, 0);
     return;
   }
@@ -163,19 +194,49 @@ function generatePassword(options) {
 
   shuffle(result);
   const password = result.join("");
-  elements.result.value = password;
+  currentPassword = password;
   updateStrength(options.length, pool.length);
+  animatePassword(password, pool);
 }
 
 function handleOptionChange() {
-  const options = readOptionsFromUI();
+  let options = readOptionsFromUI();
+  if (options.sanskrit) {
+    if (!lastStandardToggles) {
+      lastStandardToggles = {
+        lower: options.lower,
+        upper: options.upper,
+        nums: options.nums,
+        syms: options.syms,
+      };
+    }
+    options = {
+      ...options,
+      lower: true,
+      upper: true,
+      nums: true,
+      syms: false,
+    };
+    writeOptionsToUI(options);
+  } else {
+    if (lastStandardToggles) {
+      options = {
+        ...options,
+        ...lastStandardToggles,
+      };
+      lastStandardToggles = null;
+      writeOptionsToUI(options);
+    } else {
+      syncSanskritModeUI(false);
+    }
+  }
   elements.lengthValue.textContent = options.length;
   saveOptions(options);
   generatePassword(options);
 }
 
 function handleCopy() {
-  const value = elements.result.value;
+  const value = currentPassword || elements.result.value;
   if (!value) {
     showToast("Nothing to copy", "error");
     return;
@@ -187,22 +248,66 @@ function handleCopy() {
     copyTimeout = setTimeout(() => {
       elements.copy.classList.remove("is-copied");
       elements.copy.querySelector(".copy-text").textContent = "Copy";
-    }, 1900);
+    }, 400);
   };
   navigator.clipboard.writeText(value).then(setCopiedState, setCopiedState);
 }
 
-function handleShuffle() {
-  const value = elements.result.value;
-  if (!value) {
-    showToast("Nothing to shuffle", "error");
+function animatePassword(target, pool) {
+  clearInterval(scrambleTimer);
+  if (!pool.length) {
+    elements.result.value = target;
+    renderResult(target);
     return;
   }
-  const chars = shuffle([...value]);
-  elements.result.value = chars.join("");
-  const options = readOptionsFromUI();
-  const { pool } = buildPool(options);
-  updateStrength(chars.length, pool.length);
+
+  const chars = target.split("");
+  let revealCount = 0;
+  let frame = 0;
+  const revealEvery = 2;
+
+  scrambleTimer = setInterval(() => {
+    frame += 1;
+    if (frame % revealEvery === 0 && revealCount < chars.length) {
+      revealCount += 1;
+    }
+
+    const output = chars.map((char, index) => {
+      if (index < revealCount) return char;
+      return pool[secureRandomInt(pool.length)];
+    });
+
+    const displayValue = output.join("");
+    elements.result.value = displayValue;
+    renderResult(displayValue);
+
+    if (revealCount >= chars.length) {
+      clearInterval(scrambleTimer);
+      elements.result.value = target;
+      renderResult(target);
+    }
+  }, 20);
+}
+
+function renderResult(value) {
+  if (!elements.resultDisplay) return;
+  elements.resultDisplay.textContent = "";
+  for (const char of value) {
+    const span = document.createElement("span");
+    span.className = "result-char";
+    if (isDevanagari(char)) {
+      span.classList.add("sanskrit");
+    } else if (sets.syms.includes(char)) {
+      span.classList.add("symbol");
+    }
+    span.textContent = char;
+    elements.resultDisplay.appendChild(span);
+  }
+}
+
+function isDevanagari(char) {
+  const code = char.charCodeAt(0);
+  return code >= 0x0900 && code <= 0x097f;
 }
 
 function init() {
@@ -217,9 +322,9 @@ function init() {
   elements.upper.addEventListener("change", handleOptionChange);
   elements.nums.addEventListener("change", handleOptionChange);
   elements.syms.addEventListener("change", handleOptionChange);
+  elements.sanskrit.addEventListener("change", handleOptionChange);
   elements.noSimilar.addEventListener("change", handleOptionChange);
   elements.generate.addEventListener("click", () => generatePassword(readOptionsFromUI()));
-  elements.shuffle.addEventListener("click", handleShuffle);
   elements.copy.addEventListener("click", handleCopy);
 }
 
