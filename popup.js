@@ -244,7 +244,7 @@ function handleCopy() {
   const setCopiedState = () => {
     clearTimeout(copyTimeout);
     elements.copy.classList.add("is-copied");
-    elements.copy.querySelector(".copy-text").textContent = "Copied";
+    elements.copy.querySelector(".copy-text").textContent = "Copied !";
     copyTimeout = setTimeout(() => {
       elements.copy.classList.remove("is-copied");
       elements.copy.querySelector(".copy-text").textContent = "Copy";

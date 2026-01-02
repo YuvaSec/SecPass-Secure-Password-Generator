@@ -33,7 +33,6 @@ body {
   min-height: 520px;
   font-family: var(--font);
   color: var(--ink);
-  border: 1px solid var(--border);
   background:
     radial-gradient(circle at 0 100%, rgba(45, 98, 255, 0.18), transparent 50%),
     radial-gradient(circle at 100% 60%, rgba(45, 98, 255, 0.12), transparent 30%),
@@ -61,6 +60,21 @@ body {
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+}
+
+.footer-link {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: var(--accent);
 }
 
 /* Typography */
@@ -313,6 +327,10 @@ input[type="range"] {
   border-color: var(--accent-strong);
 }
 
+.btn:active {
+  transform: translateY(1px);
+}
+
 .btn.ghost {
   background: transparent;
   color: var(--muted);
@@ -324,8 +342,8 @@ input[type="range"] {
 .btn.ghost:hover {
   background: rgba(5, 3, 3, 0.05);
   border-color: var(--border);
-  transform: translateY(0);
 }
+
 
 /* Generate shimmer */
 .generate-btn::after {
