@@ -50,9 +50,9 @@ body.dark {
   --muted: #c9c1ba;
   --card: #1c1e22;
   --border: rgba(242, 233, 225, 0.18);
-  /*--accent: #cfe7c8;*/
+  /*--accent: rgba(27, 24, 23, 0.8);*/
   /*--accent-strong: #a9d6b9;*/
-  /*--accent-soft: #defff0;*/
+  /*--accent-soft: #F8E9D5;*/
   background:
     radial-gradient(circle at 0 100%, rgba(207, 231, 200, 0.18), transparent 50%),
     radial-gradient(circle at 100% 60%, rgba(44, 46, 52, 0.4), transparent 30%),
@@ -361,7 +361,7 @@ input[type="range"] {
 
 .toggle input[type="checkbox"]:checked {
   background: rgba(106, 64, 64, 0.15);
-  border-color: var(--accent);
+  /*border-color: var(--accent);*/
   /*box-shadow: 0 0 0 2px rgba(106, 64, 64, 0.18);*/
 }
 
@@ -425,6 +425,7 @@ input[type="range"] {
   gap: 2px;
   overflow: hidden;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 body.dark .result-display {
@@ -577,7 +578,8 @@ body.dark .copy-btn:hover {
 
 /* Focus */
 .btn:focus-visible,
-input:focus-visible {
+input:focus-visible,
+.result-display:focus-visible {
   outline: 2px solid rgba(45, 98, 255, 0.6);
   outline-offset: 2px;
 }

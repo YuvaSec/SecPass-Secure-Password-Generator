@@ -272,6 +272,13 @@ function handleCopy() {
   navigator.clipboard.writeText(value).then(setCopiedState, setCopiedState);
 }
 
+function handleResultKeydown(event) {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    handleCopy();
+  }
+}
+
 function animatePassword(target, pool) {
   clearInterval(scrambleTimer);
   if (!pool.length) {
@@ -345,6 +352,8 @@ function init() {
   elements.noSimilar.addEventListener("change", handleOptionChange);
   elements.generate.addEventListener("click", () => generatePassword(readOptionsFromUI()));
   elements.copy.addEventListener("click", handleCopy);
+  elements.resultDisplay.addEventListener("click", handleCopy);
+  elements.resultDisplay.addEventListener("keydown", handleResultKeydown);
   elements.themeToggle.addEventListener("change", (event) => {
     applyTheme(event.target.checked);
   });
