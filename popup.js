@@ -6,6 +6,7 @@ const defaults = {
   syms: true,
   sanskrit: false,
   noSimilar: false,
+  darkMode: false,
 };
 
 const elements = {
@@ -17,6 +18,8 @@ const elements = {
   syms: document.getElementById("syms"),
   sanskrit: document.getElementById("sanskrit"),
   noSimilar: document.getElementById("noSimilar"),
+  themeToggle: document.getElementById("themeToggle"),
+  unicodeWarning: document.getElementById("unicodeWarning"),
   result: document.getElementById("result"),
   resultDisplay: document.getElementById("resultDisplay"),
   copy: document.getElementById("copy"),
@@ -136,6 +139,7 @@ function readOptionsFromUI() {
     syms: elements.syms.checked,
     sanskrit: elements.sanskrit.checked,
     noSimilar: elements.noSimilar.checked,
+    darkMode: elements.themeToggle.checked,
   };
 }
 
@@ -149,10 +153,18 @@ function writeOptionsToUI(options) {
   elements.sanskrit.checked = options.sanskrit;
   elements.noSimilar.checked = options.noSimilar;
   syncSanskritModeUI(options.sanskrit);
+  updateUnicodeWarning(options.sanskrit);
+  applyTheme(Boolean(options.darkMode));
 }
 
 function saveOptions(options) {
   chrome.storage.sync.set(options);
+}
+
+function applyTheme(enabled) {
+  document.body.classList.toggle("dark", enabled);
+  elements.themeToggle.checked = enabled;
+  chrome.storage.sync.set({ darkMode: enabled });
 }
 
 function syncSanskritModeUI(enabled) {
@@ -162,6 +174,11 @@ function syncSanskritModeUI(enabled) {
   elements.nums.disabled = shouldDisable;
   elements.syms.disabled = shouldDisable;
 }
+
+function updateUnicodeWarning(enabled) {
+  elements.unicodeWarning.style.display = enabled ? "block" : "none";
+}
+
 
 function generatePassword(options) {
   const { pool, activeSets } = buildPool(options);
@@ -230,6 +247,8 @@ function handleOptionChange() {
       syncSanskritModeUI(false);
     }
   }
+  applyTheme(Boolean(options.darkMode));
+  updateUnicodeWarning(options.sanskrit);
   elements.lengthValue.textContent = options.length;
   saveOptions(options);
   generatePassword(options);
@@ -326,6 +345,9 @@ function init() {
   elements.noSimilar.addEventListener("change", handleOptionChange);
   elements.generate.addEventListener("click", () => generatePassword(readOptionsFromUI()));
   elements.copy.addEventListener("click", handleCopy);
+  elements.themeToggle.addEventListener("change", (event) => {
+    applyTheme(event.target.checked);
+  });
 }
 
 document.addEventListener("DOMContentLoaded", init);

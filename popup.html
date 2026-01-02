@@ -9,12 +9,21 @@
   <body>
     <main class="panel" aria-live="polite">
       <header class="hero">
-        <div class="badge" aria-hidden="true">SP</div>
+        <div class="logo" aria-hidden="true">
+          <img class="logo-img logo-light" src="LOGO_light.png" alt="" />
+          <img class="logo-img logo-dark" src="LOGO_Dark.png" alt="" />
+        </div>
         <div>
           <h1>SecPass</h1>
-          <p>Local-only &middot; No tracking &middot; No storage</p>
         </div>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+          <input id="themeToggle" type="checkbox" />
+          <span class="theme-track">
+            <span class="theme-thumb"></span>
+          </span>
+        </label>
       </header>
+
       <section class="card output">
 <!--        <label for="result">Generated password</label>-->
         <div class="output-row">
@@ -41,9 +50,24 @@
           <label class="toggle"><input id="upper" type="checkbox" />Uppercase</label>
           <label class="toggle"><input id="nums" type="checkbox" />Numbers</label>
           <label class="toggle"><input id="syms" type="checkbox" />Symbols</label>
-          <label class="toggle subtle"><input id="noSimilar" type="checkbox" />Exclude similar (I l 1 O 0)</label>
-          <label class="toggle wide"><input id="sanskrit" type="checkbox" />Sanskrit (अ)</label>
         </div>
+
+        <details class="advanced">
+          <summary>Advanced</summary>
+          <div class="advanced-body">
+            <label class="toggle subtle">
+              <input id="noSimilar" type="checkbox" />
+              Exclude similar (I l 1 O 0)
+            </label>
+            <label class="toggle wide">
+              <input id="sanskrit" type="checkbox" />
+              <span>Sanskrit (अ)</span>
+            </label>
+            <div id="unicodeWarning" class="compat-badge" aria-live="polite">May fail on some sites</div>
+          </div>
+        </details>
+<!--        <p class="trust-pill">Local-only &middot; No tracking &middot; No storage</p>-->
+
       </section>
 
       <section class="actions">
@@ -53,10 +77,13 @@
         </button>
       </section>
 
+
       <footer class="footer">
+<!--          <p class="trust-pill">Local-only &middot; No tracking &middot; No storage</p>-->
         <a class="footer-link" href="https://github.com/YuvaSec" target="_blank" rel="noreferrer">
           Made with &#10084; by YuvaSec
         </a>
+
       </footer>
 
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
